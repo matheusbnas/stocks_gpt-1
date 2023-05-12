@@ -19,16 +19,25 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 try:
-    df_historico = pd.read_csv('historical_msgs.csv', index_col=0)
+    df_historico_wallet = pd.read_csv('historical_msgs_wallet.csv', index_col=0)
 
 except:
-    df_historico = pd.DataFrame(columns=['user', 'chatGPT'])
-    
-df_historico.to_csv('historical_msgs.csv')
+    df_historico_wallet = pd.DataFrame(columns=['user', 'chatGPT'])
 
-df_data = pd.read_csv('book_data.csv')
-df_data.drop('exchange', axis=1, inplace=True)
-df_data['date'] = df_data['date'].str.replace('T00:00:00', '')
+try:
+    df_historico_sector = pd.read_csv('historical_msgs_sector.csv', index_col=0)
+except:
+    df_historico_sector = pd.DataFrame(columns=['user', 'chatGPT'])
+
+
+df_historico_wallet.to_csv('historical_msgs_wallet.csv')
+df_historico_sector.to_csv('historical_msgs_sector.csv')
+
+
+df_data_wallet = pd.read_csv('book_data.csv')
+df_data_wallet.drop('exchange', axis=1, inplace=True)
+df_data_wallet['date'] = df_data_wallet['date'].str.replace('T00:00:00', '')
+
 
 def generate_card_gpt(pesquisa):
     cardNovo =  dbc.Row([
@@ -124,50 +133,72 @@ def clusterCards(df_msgs_store):
     return cardsList
 
 layout = dbc.Container([
-    dbc.Row([
-        dbc.Col([
-            dbc.Row([
-                dbc.Col([
-                    "AsimoChat"
-                ], className='textoPrincipal', style={'margin-top' : '10px'})
-            ]),
-            dbc.Row([
-                dbc.Col([
-                    dbc.Input(id="msg_user", type="text", placeholder="Insira uma mensagem")
-                ], md=10),
-                dbc.Col([
-                    dbc.Col([dbc.Button("Pesquisa", id="botao_search")])
-                ], md=2)
-            ])
-        ]),
-        dbc.Col([
+        dbc.Row([
+            dbc.Col([
+                dbc.Row([
+                    dbc.Col("Wallet Chat", className='textoPrincipal', style={'margin-top' : '10px'}, md=12),
+                ], className= 'g-2 my-auto'),
 
-        ],md=12, id='cards_respostas', style={"height": "100%", "maxHeight": "25rem", "overflow-y": "auto"}),
-    ], className='g-2 my-auto')
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Input(id="msg_user_wallet", type="text", placeholder="Insira uma mensagem")
+                    ], md=10),
+                    dbc.Col([
+                        dbc.Button("Pesquisa", id="botao_search_wallet")
+                    ], md=2),
+                ], className= 'g-2 my-auto'),
+
+                dbc.Row([
+                    dbc.Col([
+
+                    ],md=12, id='cards_respostas_wallet', style={"height": "100%", "maxHeight": "25rem", "overflow-y": "auto"}),
+                ], className= 'g-2 my-auto'),
+            ], md=6),
+
+            dbc.Col([
+                dbc.Row([
+                    dbc.Col("Sector Chat", className='textoPrincipal', style={'margin-top' : '10px'}, md=12)
+                ], className= 'g-2 my-auto'),
+
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Input(id="msg_user_sector", type="text", placeholder="Insira uma mensagem")
+                    ], md=10),
+                    dbc.Col([
+                        dbc.Button("Pesquisa", id="botao_search_sector")
+                    ], md=2)
+                ], className= 'g-2 my-auto'),
+
+                dbc.Row([
+                    dbc.Col([
+
+                    ],md=12, id='cards_respostas_sector', style={"height": "100%", "maxHeight": "25rem", "overflow-y": "auto"}),
+                ], className= 'g-2 my-auto'),
+            ], md=6),
+
+        ], className= 'g-2 my-auto')
+
 ],fluid=True),
 
 
-
 @app.callback(
-    # Output('historical_msgs_store', 'data'),
-    Output('cards_respostas', 'children'),
-    Input('botao_search', 'n_clicks'),
-    # Input('historical_msgs_store', 'data'),
-    State('msg_user', 'value'),
-    # prevent_initial_call=True
+ 
+    Output('cards_respostas_wallet', 'children'),
+    Input('botao_search_wallet', 'n_clicks'),
+    State('msg_user_wallet', 'value'),
+
 )
 
-def add_msg(n, msg_user):
+def add_msg_wallet(n, msg_user):
 
-    df_historical_msgs = pd.read_csv('historical_msgs.csv', index_col=0)
-    # print(df_historical)
+    df_historical_msgs_wallet = pd.read_csv('historical_msgs_wallet.csv', index_col=0)
 
     if msg_user == None:
-        lista_cards = clusterCards(df_historical_msgs)
+        lista_cards = clusterCards(df_historical_msgs_wallet)
         return lista_cards
 
 
-    mensagem = f'{df_data}, considerando somente os dados existentes dentro do dataframe, qual é a resposta exata para a pergunta: ' + msg_user
+    mensagem = f'{df_data_wallet}, considerando somente os dados existentes dentro do dataframe, qual é a resposta exata para a pergunta: ' + msg_user
 
     mensagens = []
     mensagens.append({"role": "user", "content": str(mensagem)})
@@ -175,25 +206,67 @@ def add_msg(n, msg_user):
     pergunta_user = mensagens[0]['content']
     resposta_chatgpt = gerar_resposta(mensagens)
 
-    # print(type(pergunta_user))
 
     if pergunta_user == 'None' or  pergunta_user == '':
-        lista_cards = clusterCards(df_historical_msgs)
+        lista_cards = clusterCards(df_historical_msgs_wallet)
         return lista_cards
 
     new_line = pd.DataFrame([[pergunta_user, resposta_chatgpt]], columns=['user', 'chatGPT'])
-    # print('TA AQUI *************************************************************')
-    # print(new_line)
-    # print(type(new_line))
+
     new_line['user'] = new_line['user'].str.split(':')
     new_line['user'] = new_line['user'][0][-1]
-    df_historical_msgs = pd.concat([new_line, df_historical_msgs], ignore_index = True)
+    df_historical_msgs_wallet = pd.concat([new_line, df_historical_msgs_wallet], ignore_index = True)
 
-    # import pdb; pdb.set_trace()   
 
-    df_historical_msgs.to_csv('historical_msgs.csv')
+    df_historical_msgs_wallet.to_csv('historical_msgs_wallet.csv')
     
-    lista_cards = clusterCards(df_historical_msgs)
+    lista_cards = clusterCards(df_historical_msgs_wallet)
+
+
+
+    return lista_cards
+
+
+@app.callback(
+ 
+    Output('cards_respostas_sector', 'children'),
+    Input('botao_search_sector', 'n_clicks'),
+    State('msg_user_sector', 'value'),
+
+)
+
+def add_msg_sector(n, msg_user):
+
+    df_historical_msgs_sector = pd.read_csv('historical_msgs_sector.csv', index_col=0)
+
+    if msg_user == None:
+        lista_cards = clusterCards(df_historical_msgs_sector)
+        return lista_cards
+
+
+    mensagem = f'{df_data_wallet}, considerando somente os dados existentes dentro do dataframe, qual é a resposta exata para a pergunta: ' + msg_user
+
+    mensagens = []
+    mensagens.append({"role": "user", "content": str(mensagem)})
+
+    pergunta_user = mensagens[0]['content']
+    resposta_chatgpt = gerar_resposta(mensagens)
+
+
+    if pergunta_user == 'None' or  pergunta_user == '':
+        lista_cards = clusterCards(df_historical_msgs_sector)
+        return lista_cards
+
+    new_line = pd.DataFrame([[pergunta_user, resposta_chatgpt]], columns=['user', 'chatGPT'])
+
+    new_line['user'] = new_line['user'].str.split(':')
+    new_line['user'] = new_line['user'][0][-1]
+    df_historical_msgs_sector = pd.concat([new_line, df_historical_msgs_sector], ignore_index = True)
+
+
+    df_historical_msgs_sector.to_csv('historical_msgs_sector.csv')
+    
+    lista_cards = clusterCards(df_historical_msgs_sector)
 
 
 

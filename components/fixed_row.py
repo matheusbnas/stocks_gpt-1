@@ -112,10 +112,23 @@ layout = dbc.Container([
 def radar_graph(book_data, switch):
     df_registros = pd.DataFrame(book_data)
     df_registros['vol'] = abs(df_registros['vol']) * df_registros['tipo'].replace({'Compra': 1, 'Venda': -1})
+
+    try:
+        df_sectors = pd.read_csv('sectors.csv', index_col=0)
+
+    except:
+        df_sectors = pd.DataFrame(columns=['setor', 'acao', 'participacao %'])
+    
+    df_sectors.to_csv('sectors.csv')
     
     if switch:
         df_ibov_prop = df_ibov[df_ibov['Código'].isin(df_registros['ativo'].unique())]
         df_ibov_prop['Proporcao'] = df_ibov_prop['Participação'].apply(lambda x: x*100/df_ibov_prop['Participação'].sum())
+
+
+        df_sectors = df_ibov_prop.drop(['Código', 'Tipo', 'Qtde. Teórica', 'Part. (%)Acum.', 'Participação', 'Proporcao'], axis=1)
+        df_sectors.to_csv('sectors.csv')
+
 
         ibov_setor = df_ibov_prop.groupby('Setor')['Proporcao'].sum()
 
