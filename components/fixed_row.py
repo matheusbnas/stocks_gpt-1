@@ -126,7 +126,7 @@ def radar_graph(book_data, switch):
         df_ibov_prop['Proporcao'] = df_ibov_prop['Participação'].apply(lambda x: x*100/df_ibov_prop['Participação'].sum())
 
 
-        df_sectors = df_ibov_prop.drop(['Código', 'Tipo', 'Qtde. Teórica', 'Part. (%)Acum.', 'Participação', 'Proporcao'], axis=1)
+        df_sectors = df_ibov_prop.drop(['Código', 'Tipo', 'Qtde. Teórica', 'Part. (%)Acum.', 'Participação', 'Proporcao'],  axis=1)
         df_sectors.to_csv('sectors.csv')
 
 
