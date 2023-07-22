@@ -16,7 +16,7 @@ try:    # caso exista, ler infos
     ativos_org = iterar_sobre_df_book(df_book)
 except: # caso não exista, criar df
     df_book = pd.DataFrame(columns=['date', 'preco', 'tipo', 'ativo', 'exchange', 'vol', 'valor_total'])
-
+    
 try:
     df_historical_data = pd.read_csv('historical_data.csv', index_col=0)
 except:
@@ -64,8 +64,10 @@ def render_page(pathname):
         return home.layout
     if pathname == '/wallet':
         return wallet.layout
+    #####################################################################################################################################
     if pathname == '/chatgpt':
         return chatgpt.layout
+    #####################################################################################################################################
 
 #Callback para atualizar as databases
 @app.callback(
