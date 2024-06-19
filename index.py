@@ -11,14 +11,14 @@ from app import *
 # Funções =======================================
 # Checando se o book de transações existe
 ativos_org = {}
-try:    # caso exista, ler infos
+try:    # caso exista, ler infos do df_book
     df_book = pd.read_csv('book_data.csv', index_col=0)
     ativos_org = iterar_sobre_df_book(df_book)
-except: # caso não exista, criar df
+except: # caso não exista, criar df_book
     df_book = pd.DataFrame(columns=['date', 'preco', 'tipo', 'ativo', 'exchange', 'vol', 'valor_total'])
 
 try:
-    df_historical_data = pd.read_csv('historical_data.csv', index_col=0)
+    df_historical_data = pd.read_csv('historical_data.csv', index_col=0) #index = 0 começar na coluna 0
 except:
     df_historical_data = pd.DataFrame(columns=['datetime', 'symbol', 'close'])
 
@@ -32,6 +32,7 @@ app.layout = dbc.Container([
     dcc.Store(id='book_data_store', data=df_book, storage_type='memory'),
     dcc.Store(id='historical_data_store', data=df_historical_data, storage_type='memory'),
     dcc.Store(id='layout_data', data=[], storage_type='memory'),
+    #Criar 3 linhas: header, fixed_row e a parte gráfica(page-content)
     dbc.Row([
         dbc.Col([
             dbc.Row([
@@ -50,7 +51,7 @@ app.layout = dbc.Container([
             ],id="page-content"),
         ])
     ])
-], fluid=True)
+], fluid=True) #Para ocupar toda a tela. Deixar sem borda
 
 # Callbacks =======================
 #atualiza o content da pagina quando clica em algum dos icones do header
@@ -64,10 +65,12 @@ def render_page(pathname):
         return home.layout
     if pathname == '/wallet':
         return wallet.layout
+#####################################################################################################################################
     if pathname == '/chatgpt':
         return chatgpt.layout
+#####################################################################################################################################
 
-#Callback para atualizar as databases
+#Callback para atualizar as databases das carteiras
 @app.callback(
     Output('historical_data_store', 'data'),
     Input('book_data_store', 'data'),

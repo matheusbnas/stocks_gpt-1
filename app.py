@@ -1,3 +1,4 @@
+#Faz o instanciamento do aplicativo - projeto
 import dash
 import dash_bootstrap_components as dbc
 

@@ -112,22 +112,23 @@ def slice_df_timedeltas(df: pd.DataFrame, period_string: str) -> pd.DataFrame:
 
 try:
     df_book_data = pd.read_csv('book_data.csv', index_col=0)
-    df_compra_e_venda = df_book_data.groupby('tipo').sum()
+    df_compra_e_venda = df_book_data.groupby('tipo').sum(numeric_only=True)
 except:
     df_book = pd.DataFrame(columns=['date', 'preco', 'tipo', 'ativo', 'exchange', 'vol', 'valor_total'])
 
 def iterar_sobre_df_book(df_book_var: pd.DataFrame, ativos_org_var={}) -> dict:
-    for _, row in df_book_var.iterrows():
+    for _, row in df_book_var.iterrows(): #iterar sobre a linha de cada dataframe
         if not any(row['ativo'] in sublist for sublist in ativos_org_var):  
             ativos_org_var[row["ativo"]] = row['exchange']
     
     ativos_org_var['IBOV'] = 'BMFBOVESPA'
     return ativos_org_var 
 
+#função que vai fazer a requisição da biblioteca datafeed e atualizar a IBOVESPA
 def atualizar_historical_data(df_historical_var: pd.DataFrame, ativos_org_var={}) -> pd.DataFrame:
     tv = TvDatafeed()
     for symb_dict in ativos_org_var.items():
-        new_line = tv.get_hist(*symb_dict, n_bars=5000)[['symbol','close']].reset_index()
+        new_line = tv.get_hist(*symb_dict, n_bars=5000)[['symbol','close']].reset_index() #Deixar em ordem usando reset_index()
 
         df_historical_var = pd.concat([df_historical_var, new_line], ignore_index=True)
 

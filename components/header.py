@@ -12,9 +12,11 @@ layout = dbc.Container([
         dbc.Col([
             dbc.Button("Wallet", href='/wallet', className='header_icon')
         ], md=1,xs=4),
+        #####################################################################################################################################
         dbc.Col([
             dbc.Button("ChatGPT", href='/chatgpt', className='header_icon')
         ], md=1,xs=4),
+        #####################################################################################################################################
         dbc.Col([
             dbc.Button("Add", href='', id='add_button', className='header_icon')
         ], md=1,xs=4),

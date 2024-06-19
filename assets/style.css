@@ -254,6 +254,7 @@ h5 {
     color: white ;
 }
 
+/*###########################################################*/
 .btn{
     background-color: rgba(178, 45, 178, 1);
     border-color : rgba(255, 255, 255, 0.3);
@@ -265,7 +266,12 @@ h5 {
     color: rgba(255, 255, 255, 0.8);
     border-color: rgba(255, 255, 255, 0.5);
 }
-.card_chatgpt{
+.card_chatgpt_user{
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
 }
+.card_chatgpt_gpt{
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+/*###########################################################*/
