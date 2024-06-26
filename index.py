@@ -22,7 +22,7 @@ try:
 except:
     df_historical_data = pd.DataFrame(columns=['datetime', 'symbol', 'close'])
 
-df_historical_data = atualizar_historical_data(df_historical_data, ativos_org)
+#df_historical_data = atualizar_historical_data(df_historical_data, ativos_org)
 
 df_book = df_book.to_dict() 
 df_historical_data = df_historical_data.to_dict()
